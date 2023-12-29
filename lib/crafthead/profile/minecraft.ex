@@ -17,7 +17,7 @@ defmodule Crafthead.Profile.Minecraft do
 
     %{
       skin: textures_property |> get_skin_texture_info(),
-      cape: textures_property |> get_cape_texture_url()
+      cape: textures_property |> get_cape_texture_info()
     }
   end
 
@@ -52,13 +52,13 @@ defmodule Crafthead.Profile.Minecraft do
 
   defp get_skin_texture_info(textures_property) when is_nil(textures_property), do: nil
 
-  defp get_cape_texture_url(textures_property) when is_map(textures_property) do
+  defp get_cape_texture_info(textures_property) when is_map(textures_property) do
     if Map.has_key?(textures_property["textures"], "CAPE") do
-      textures_property["textures"]["CAPE"]["url"]
+      %{url: textures_property["textures"]["CAPE"]["url"]}
     else
       nil
     end
   end
 
-  defp get_cape_texture_url(textures_property) when is_nil(textures_property), do: nil
+  defp get_cape_texture_info(textures_property) when is_nil(textures_property), do: nil
 end

@@ -46,8 +46,10 @@ defmodule Crafthead.Profile.MinecraftTest do
             "http://textures.minecraft.net/texture/f7f7a5afbf946dae19fa38c221e31034519b199eb1fde90e2495172e9d7d6a",
           model: :classic
         },
-        cape:
-          "http://textures.minecraft.net/texture/953cac8b779fe41383e675ee2b86071a71658f2180f56fbce8aa315ea70e2ed6"
+        cape: %{
+          url:
+            "http://textures.minecraft.net/texture/953cac8b779fe41383e675ee2b86071a71658f2180f56fbce8aa315ea70e2ed6"
+        }
       }
 
       assert Crafthead.Profile.Minecraft.get_skin_info(profile) == expected_result

@@ -33,6 +33,7 @@ defmodule CraftheadWeb.ImageController do
 
   defp get_render_options(render_type, params, options \\ []) do
     armored = Keyword.get(options, :armored, false)
+
     %Crafthead.Renderer.RenderOptions{
       size: Map.get(params, "size", "128") |> String.to_integer(),
       render_type: render_type,
@@ -68,12 +69,12 @@ defmodule CraftheadWeb.ImageController do
 
   def armor_body(conn, %{"entity" => raw_entity} = params) do
     entity = raw_entity |> Request.what_entity()
-    image(conn, entity, get_render_options(:body, params, [armored: true]))
+    image(conn, entity, get_render_options(:body, params, armored: true))
   end
 
   def armor_bust(conn, %{"entity" => raw_entity} = params) do
     entity = raw_entity |> Request.what_entity()
-    image(conn, entity, get_render_options(:bust, params, [armored: true]))
+    image(conn, entity, get_render_options(:bust, params, armored: true))
   end
 
   def cape(conn, %{"entity" => raw_entity} = params) do
