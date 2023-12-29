@@ -61,7 +61,7 @@ defmodule Crafthead.Util.Request do
 
   """
   def java_v3(username) do
-    # Java's UUID class uses a non-comformant mechanism for generating v3 UUIDs (specfically, it doesn't generate v3 UUIDs
+    # Java's UUID class uses a non-comformant mechanism for generating v3 UUIDs (specifically, it doesn't generate v3 UUIDs
     # with a namespace), so we can't just use the UUID module from Hex.
 
     # We need to extract the first six bytes (to save for later), the following three bytes individually (indices 6, 7, and 8 - 7 is unmodified),
