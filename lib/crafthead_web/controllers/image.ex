@@ -17,7 +17,7 @@ defmodule CraftheadWeb.ImageController do
 
   defp try_render(skin, options) do
     case Renderer.render_image(skin, options) do
-      {error, _} -> {:error, error}
+      {:error, error} -> {:error, error}
       render -> {:ok, render}
     end
   end
