@@ -17,6 +17,17 @@ defmodule CraftheadWeb.Router do
       get "/#{render_type}/:entity/:size", ImageController, String.to_atom(render_type)
     end)
 
+    ["body", "bust"]
+    |> Enum.each(fn render_type ->
+      get "/armor/#{render_type}/:entity",
+          ImageController,
+          String.to_atom("armor_" <> render_type)
+
+      get "/armor/#{render_type}/:entity/:size",
+          ImageController,
+          String.to_atom("armor_" <> render_type)
+    end)
+
     get "/ping", PingController, :show
   end
 

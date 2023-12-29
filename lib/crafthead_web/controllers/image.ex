@@ -9,6 +9,8 @@ defmodule CraftheadWeb.ImageController do
 
   alias CraftheadWeb.Util, as: WebUtil
 
+  alias Plug.Conn
+
   use CraftheadWeb, :controller
 
   action_fallback CraftheadWeb.FallbackController
@@ -20,49 +22,81 @@ defmodule CraftheadWeb.ImageController do
     end
   end
 
+  defp maybe_get_skin_model_override(model) do
+    case model do
+      "slim" -> :slim
+      "default" -> :classic
+      "classic" -> :classic
+      _ -> nil
+    end
+  end
+
+  defp get_render_options(render_type, params, options \\ []) do
+    armored = Keyword.get(options, :armored, false)
+    %Crafthead.Renderer.RenderOptions{
+      size: Map.get(params, "size", "128") |> String.to_integer(),
+      render_type: render_type,
+      model: Map.get(params, "model", "default") |> maybe_get_skin_model_override(),
+      armored: armored
+    }
+  end
+
   def avatar(conn, %{"entity" => raw_entity} = params) do
     entity = raw_entity |> Request.what_entity()
-    size = Map.get(params, "size", "128") |> String.to_integer()
-    image(conn, entity, %Crafthead.Renderer.RenderOptions{size: size, render_type: :avatar})
+    image(conn, entity, get_render_options(:avatar, params))
   end
 
   def helm(conn, %{"entity" => raw_entity} = params) do
     entity = raw_entity |> Request.what_entity()
-    size = Map.get(params, "size", "128") |> String.to_integer()
-    image(conn, entity, %Crafthead.Renderer.RenderOptions{size: size, render_type: :helm})
+    image(conn, entity, get_render_options(:helm, params))
   end
 
   def cube(conn, %{"entity" => raw_entity} = params) do
     entity = raw_entity |> Request.what_entity()
-    size = Map.get(params, "size", "128") |> String.to_integer()
-    image(conn, entity, %Crafthead.Renderer.RenderOptions{size: size, render_type: :cube})
+    image(conn, entity, get_render_options(:cube, params))
   end
 
   def body(conn, %{"entity" => raw_entity} = params) do
     entity = raw_entity |> Request.what_entity()
-    size = Map.get(params, "size", "128") |> String.to_integer()
-    image(conn, entity, %Crafthead.Renderer.RenderOptions{size: size, render_type: :body})
+    image(conn, entity, get_render_options(:body, params))
   end
 
   def bust(conn, %{"entity" => raw_entity} = params) do
     entity = raw_entity |> Request.what_entity()
-    size = Map.get(params, "size", "128") |> String.to_integer()
-    image(conn, entity, %Crafthead.Renderer.RenderOptions{size: size, render_type: :bust})
+    image(conn, entity, get_render_options(:bust, params))
+  end
+
+  def armor_body(conn, %{"entity" => raw_entity} = params) do
+    entity = raw_entity |> Request.what_entity()
+    image(conn, entity, get_render_options(:body, params, [armored: true]))
+  end
+
+  def armor_bust(conn, %{"entity" => raw_entity} = params) do
+    entity = raw_entity |> Request.what_entity()
+    image(conn, entity, get_render_options(:bust, params, [armored: true]))
   end
 
   def cape(conn, %{"entity" => raw_entity} = params) do
     entity = raw_entity |> Request.what_entity()
-    size = Map.get(params, "size", "128") |> String.to_integer()
-    image(conn, entity, %Crafthead.Renderer.RenderOptions{size: size, render_type: :cape}, :cape)
+    image(conn, entity, get_render_options(:cape, params), :cape)
   end
 
   defp image(conn, entity, render_options, texture \\ :skin) do
     with {:ok, profile} <- WebUtil.get_potentially_fake_profile_from_entity(entity),
          texture_info <- Minecraft.get_skin_info(profile) do
+      conn |> Conn.fetch_query_params()
+
+      user_specified_model =
+        case conn.query_params["model"] do
+          "slim" -> :slim
+          "default" -> :default
+          _ -> nil
+        end
+
       if Map.get(texture_info, texture) do
         adjusted_options =
           render_options
-          |> Map.merge(%{model: render_options.model || texture_info.skin.model})
+          |> Map.merge(%{model: user_specified_model || texture_info.skin.model})
           |> Crafthead.Renderer.RenderOptions.new()
 
         with {:ok, skin_raw} <-
@@ -78,7 +112,7 @@ defmodule CraftheadWeb.ImageController do
         fallback_skin = profile.id |> Skin.fallback_skin_type()
 
         model =
-          render_options.model ||
+          user_specified_model ||
             case fallback_skin do
               :alex -> :slim
               :steve -> :classic
