@@ -1,4 +1,6 @@
 defmodule Crafthead.Util.Request do
+  import Bitwise
+
   @mojang_uuid_regex ~r/^[0-9a-f]{32}$/
   @regular_uuid_regex ~r/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 
@@ -47,5 +49,26 @@ defmodule Crafthead.Util.Request do
       true -> Regex.replace(@minecraft_texture_base_url, texture_id_or_url, "\\1")
       false -> nil
     end
+  end
+
+  @doc ~S"""
+  Given the Minecraft username, return its UUID that the client would use in offline mode.
+
+  ## Examples
+
+    iex> Crafthead.Util.Request.java_v3("OfflinePlayer:tuxed")
+    "708f6260183d3912bbde5e279a5e739a"
+
+  """
+  def java_v3(username) do
+    # Java's UUID class uses a non-comformant mechanism for generating v3 UUIDs (specfically, it doesn't generate v3 UUIDs
+    # with a namespace), so we can't just use the UUID module from Hex.
+
+    # We need to extract the first six bytes (to save for later), the following three bytes individually (indices 6, 7, and 8 - 7 is unmodified),
+    # and save the remaining bytes (indices 9 and up).
+    <<f6::binary-size(6), f7, f8, f9, rest::binary>> = :crypto.hash(:md5, username)
+
+    (f6 <> <<bor(band(f7, 0x0F), 0x30)>> <> <<f8>> <> <<bor(band(f9, 0x3F), 0x80)>> <> rest)
+    |> Base.encode16(case: :lower)
   end
 end
