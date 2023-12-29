@@ -10,7 +10,13 @@ defmodule CraftheadWeb.Router do
 
     get "/profile/:entity", ProfileController, :show
     get "/skin/:entity", SkinController, :show
-    get "/avatar/:entity", AvatarController, :show
+
+    ["avatar", "helm", "cube", "body", "bust", "cape"]
+    |> Enum.each(fn render_type ->
+      get "/#{render_type}/:entity", ImageController, String.to_atom(render_type)
+      get "/#{render_type}/:entity/:size", ImageController, String.to_atom(render_type)
+    end)
+
     get "/ping", PingController, :show
   end
 

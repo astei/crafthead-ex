@@ -3,6 +3,8 @@ defmodule Crafthead.Renderer.RenderOptions do
             size: nil,
             armored: false,
             model: nil
+
+  use ExConstructor
 end
 
 defmodule Crafthead.Renderer do
