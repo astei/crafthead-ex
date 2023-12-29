@@ -88,4 +88,21 @@ defmodule Crafthead.Util.Request do
   def is_v3_uuid(uuid) do
     Regex.match?(@mojang_uuid_regex, uuid) && String.slice(uuid, 12, 1) == "3"
   end
+
+  @doc ~S"""
+  Given a number, clamp it between `min` and `max`.
+
+  ## Examples
+
+    iex> Crafthead.Util.Request.clamp(0, 1, 2)
+    1
+    iex> Crafthead.Util.Request.clamp(42, 666, 69)
+    69
+    iex> Crafthead.Util.Request.clamp(42, -1, 69)
+    42
+
+  """
+  def clamp(min, val, max) do
+    max(min, min(max, val))
+  end
 end

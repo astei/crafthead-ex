@@ -1,6 +1,9 @@
 defmodule CraftheadWeb.ImageController do
   @always_renders_steve_uuid "fffffff0fffffff0fffffff0fffffff0"
 
+  @min_image_size 8
+  @max_image_size 300
+
   alias Crafthead.Clients.Mojang
   alias Crafthead.Profile.Minecraft
   alias Crafthead.Renderer
@@ -34,8 +37,12 @@ defmodule CraftheadWeb.ImageController do
   defp get_render_options(render_type, params, options \\ []) do
     armored = Keyword.get(options, :armored, false)
 
+    raw_size = Map.get(params, "size", "128") |> String.to_integer()
+    # clamp the size to reasonable values to prevent resource exhaustion
+    size = Request.clamp(@min_image_size, raw_size, @max_image_size)
+
     %Crafthead.Renderer.RenderOptions{
-      size: Map.get(params, "size", "128") |> String.to_integer(),
+      size: size,
       render_type: render_type,
       model: Map.get(params, "model", "default") |> maybe_get_skin_model_override(),
       armored: armored
@@ -95,8 +102,9 @@ defmodule CraftheadWeb.ImageController do
         end
 
       if Map.get(texture_info, texture) do
-        adjusted_options = render_options
-        |> Map.merge(%{model: user_specified_model || texture_info.skin.model})
+        adjusted_options =
+          render_options
+          |> Map.merge(%{model: user_specified_model || texture_info.skin.model})
 
         with {:ok, skin_raw} <-
                Mojang.fetch_skin_from_texture_url(Map.get(texture_info, texture).url),
