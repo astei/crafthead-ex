@@ -95,10 +95,8 @@ defmodule CraftheadWeb.ImageController do
         end
 
       if Map.get(texture_info, texture) do
-        adjusted_options =
-          render_options
-          |> Map.merge(%{model: user_specified_model || texture_info.skin.model})
-          |> Crafthead.Renderer.RenderOptions.new()
+        adjusted_options = render_options
+        |> Map.merge(%{model: user_specified_model || texture_info.skin.model})
 
         with {:ok, skin_raw} <-
                Mojang.fetch_skin_from_texture_url(Map.get(texture_info, texture).url),
@@ -120,11 +118,7 @@ defmodule CraftheadWeb.ImageController do
             end
 
         skin_raw = Skin.load_default_skin(fallback_skin)
-
-        adjusted_options =
-          render_options
-          |> Map.merge(%{model: model})
-          |> Crafthead.Renderer.RenderOptions.new()
+        adjusted_options = render_options |> Map.merge(%{model: model})
 
         status =
           case profile.id do
