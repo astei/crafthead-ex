@@ -6,7 +6,7 @@ To start the server:
   * Start the Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
 
 It should go without saying that you will need a working Rust toolchain before you try to run this. (But if you create
-a release, you shouldn't need that.)
+a release, you shouldn't need that when running in production.)
 
 Usage is identical to canonical [Crafthead](https://crafthead.net). All this really is taking the existing Rust bits
 and putting it in a new guise, and then building a Phoenix server around it. (Phoenix can _sort of_ be used as a
