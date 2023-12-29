@@ -18,14 +18,14 @@ defmodule Crafthead.Util.Request do
     iex> Crafthead.Util.Request.what_entity("tuxed")
     {:username, "tuxed"}
     iex> Crafthead.Util.Request.what_entity("LadyAgnes")
-    {:username, "ladyagnes"}
+    {:username, "LadyAgnes"}
 
   """
   def what_entity(entity) do
     cond do
       Regex.match?(@mojang_uuid_regex, entity) -> {:uuid, entity}
       Regex.match?(@regular_uuid_regex, entity) -> {:uuid, String.replace(entity, "-", "")}
-      true -> {:username, String.downcase(entity)}
+      true -> {:username, entity}
     end
   end
 
@@ -70,5 +70,22 @@ defmodule Crafthead.Util.Request do
 
     (f6 <> <<bor(band(f7, 0x0F), 0x30)>> <> <<f8>> <> <<bor(band(f9, 0x3F), 0x80)>> <> rest)
     |> Base.encode16(case: :lower)
+  end
+
+  @doc ~S"""
+  Given the string, return if this is a UUIDv3 string.
+
+  ## Examples
+
+    iex> Crafthead.Util.Request.is_v3_uuid("2e5153743ccd11e4bab614109ff1a304")
+    false
+    iex> Crafthead.Util.Request.is_v3_uuid("a1b07a62f0ee330b8c9e2c84534630d5")
+    true
+    iex> Crafthead.Util.Request.is_v3_uuid("8ea1513df8a14dea9bea6b8f4b5b6e73")
+    false
+
+  """
+  def is_v3_uuid(uuid) do
+    Regex.match?(@mojang_uuid_regex, uuid) && String.slice(uuid, 12, 1) == "3"
   end
 end

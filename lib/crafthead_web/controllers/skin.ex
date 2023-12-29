@@ -13,7 +13,7 @@ defmodule CraftheadWeb.SkinController do
   def show(conn, %{"entity" => raw_entity}) do
     entity = raw_entity |> Request.what_entity()
 
-    with {:ok, profile} <- WebUtil.get_profile_from_entity(entity),
+    with {:ok, profile} <- WebUtil.get_potentially_fake_profile_from_entity(entity),
          texture_info <- Minecraft.get_skin_info(profile) do
       if texture_info.skin do
         with {:ok, skin} <- Mojang.fetch_skin_from_texture_url(texture_info.skin.url) do

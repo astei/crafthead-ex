@@ -12,7 +12,7 @@ defmodule Crafthead.Clients.Mojang do
 
   @decorate cacheable(
               cache: Cache,
-              key: {:username_to_uuid, username},
+              key_generator: {String, :downcase, [username]},
               opts: [ttl: @username_ttl]
             )
   def username_to_uuid(username) do
@@ -30,7 +30,7 @@ defmodule Crafthead.Clients.Mojang do
     end
   end
 
-  @decorate cacheable(cache: Cache, key: {:uuid_to_profile, uuid}, opts: [ttl: @profile_ttl])
+  @decorate cacheable(cache: Cache, key: uuid, opts: [ttl: @profile_ttl])
   def uuid_to_profile(uuid) do
     url = @uuid_to_profile_url <> uuid
 

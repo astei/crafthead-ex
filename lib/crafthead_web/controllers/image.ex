@@ -57,7 +57,7 @@ defmodule CraftheadWeb.ImageController do
   end
 
   defp image(conn, entity, render_options, texture \\ :skin) do
-    with {:ok, profile} <- WebUtil.get_profile_from_entity(entity),
+    with {:ok, profile} <- WebUtil.get_potentially_fake_profile_from_entity(entity),
          texture_info <- Minecraft.get_skin_info(profile) do
       if Map.get(texture_info, texture) do
         adjusted_options =
