@@ -34,7 +34,7 @@ defmodule CraftheadWeb.ImageController do
     end
   end
 
-  defp get_render_options(render_type, params, options \\ []) do
+  def get_render_options(render_type, params, options \\ []) do
     armored = Keyword.get(options, :armored, false)
 
     raw_size = Map.get(params, "size", "128") |> String.to_integer()
@@ -44,7 +44,7 @@ defmodule CraftheadWeb.ImageController do
     %Crafthead.Renderer.RenderOptions{
       size: size,
       render_type: render_type,
-      model: Map.get(params, "model", "default") |> maybe_get_skin_model_override(),
+      model: Map.get(params, "model") |> maybe_get_skin_model_override(),
       armored: armored
     }
   end
@@ -94,17 +94,10 @@ defmodule CraftheadWeb.ImageController do
          texture_info <- Minecraft.get_skin_info(profile) do
       conn |> Conn.fetch_query_params()
 
-      user_specified_model =
-        case conn.query_params["model"] do
-          "slim" -> :slim
-          "default" -> :default
-          _ -> nil
-        end
-
       if Map.get(texture_info, texture) do
         adjusted_options =
           render_options
-          |> Map.merge(%{model: user_specified_model || texture_info.skin.model})
+          |> Map.merge(%{model: render_options.model || texture_info.skin.model})
 
         with {:ok, skin_raw} <-
                Mojang.fetch_skin_from_texture_url(Map.get(texture_info, texture).url),
@@ -119,7 +112,7 @@ defmodule CraftheadWeb.ImageController do
         fallback_skin = profile.id |> Skin.fallback_skin_type()
 
         model =
-          user_specified_model ||
+          render_options.model ||
             case fallback_skin do
               :alex -> :slim
               :steve -> :classic

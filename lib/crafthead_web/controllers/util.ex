@@ -24,7 +24,7 @@ defmodule CraftheadWeb.Util do
     end
   end
 
-  def get_profile_for_entity({:username, entity} = raw_entity) do
+  def get_profile_for_entity({:username, entity}) do
     case Mojang.username_to_uuid(entity) do
       {:ok, uuid} -> get_profile_for_entity({:uuid, uuid})
       {:error, error} -> {:error, error}
