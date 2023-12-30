@@ -1,6 +1,6 @@
 defmodule CraftheadWeb.ImageControllerTest do
-  use CraftheadWeb.ConnCase, async: true
-  # use ExUnit.Parameterized
+  use CraftheadWeb.ConnCase
+  import Mock
 
   describe "get_render_options/3" do
     test "returns default render options" do
@@ -65,6 +65,54 @@ defmodule CraftheadWeb.ImageControllerTest do
                  model: nil,
                  armored: true
                }
+    end
+  end
+
+  describe "fallback skin rendering" do
+    for endpoint <- ["avatar", "helm", "cube", "body", "bust", "armor/body", "armor/bust"] do
+      test "for endpoint #{endpoint}", %{conn: conn} do
+        with_mocks([
+          {CraftheadWeb.Util, [:passthrough], [
+            get_profile_for_entity: fn _entity -> {:error, :not_found} end,
+          ]},
+          {Crafthead.Renderer, [], [
+            render_image: fn _image, _opts -> <<>> end,
+          ]}
+        ]) do
+          conn = get(conn, "/#{unquote(endpoint)}/tuxed")
+          assert List.keyfind(conn.resp_headers, "x-crafthead-fallback", 0) == {"x-crafthead-fallback", "alex"}
+
+          assert_called Crafthead.Renderer.render_image(
+            Crafthead.Util.Skin.load_default_skin(:alex),
+            :meck.is(fn opts ->
+              assert opts.model == :slim
+              true
+            end)
+          )
+        end
+      end
+    end
+
+    test "respect overriden model", %{conn: conn} do
+      with_mocks([
+        {CraftheadWeb.Util, [:passthrough], [
+          get_profile_for_entity: fn _entity -> {:error, :not_found} end,
+        ]},
+        {Crafthead.Renderer, [], [
+          render_image: fn _image, _opts -> <<>> end,
+        ]}
+      ]) do
+        conn = get(conn, "/avatar/tuxed?model=classic")
+        assert List.keyfind(conn.resp_headers, "x-crafthead-fallback", 0) == {"x-crafthead-fallback", "alex"}
+
+        assert_called Crafthead.Renderer.render_image(
+          Crafthead.Util.Skin.load_default_skin(:alex),
+          :meck.is(fn opts ->
+            assert opts.model == :classic
+            true
+          end)
+        )
+      end
     end
   end
 end

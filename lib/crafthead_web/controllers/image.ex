@@ -131,6 +131,7 @@ defmodule CraftheadWeb.ImageController do
           conn
           |> put_resp_header("content-type", "image/png")
           |> put_resp_header("x-crafthead-profile", "miss")
+          |> put_resp_header("x-crafthead-fallback", to_string(fallback_skin))
           |> send_resp(status, render)
         end
       end

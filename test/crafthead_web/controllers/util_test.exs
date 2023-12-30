@@ -1,7 +1,7 @@
 defmodule CraftheadWeb.UtilTest do
   @always_renders_steve_uuid "fffffff0fffffff0fffffff0fffffff0"
 
-  use CraftheadWeb.ConnCase, async: true
+  use CraftheadWeb.ConnCase
 
   alias CraftheadWeb.Util, as: WebUtil
 

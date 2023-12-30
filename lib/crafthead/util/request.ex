@@ -13,15 +13,22 @@ defmodule Crafthead.Util.Request do
 
     iex> Crafthead.Util.Request.what_entity("1ccef50bf6ae4542b1a9d434384a5b25")
     {:uuid, "1ccef50bf6ae4542b1a9d434384a5b25"}
+    iex> Crafthead.Util.Request.what_entity("1ccef50bf6ae4542b1a9d434384a5b25.png")
+    {:uuid, "1ccef50bf6ae4542b1a9d434384a5b25"}
     iex> Crafthead.Util.Request.what_entity("4525ca19-5825-4774-bb90-a004de1460c3")
     {:uuid, "4525ca1958254774bb90a004de1460c3"}
+    iex> Crafthead.Util.Request.what_entity("4525ca19-5825-4774-bb90-a004de1460c3.png")
+    {:uuid, "4525ca1958254774bb90a004de1460c3"}
     iex> Crafthead.Util.Request.what_entity("tuxed")
+    {:username, "tuxed"}
+    iex> Crafthead.Util.Request.what_entity("tuxed.png")
     {:username, "tuxed"}
     iex> Crafthead.Util.Request.what_entity("LadyAgnes")
     {:username, "LadyAgnes"}
 
   """
   def what_entity(entity) do
+    entity = String.trim_trailing(entity, ".png")
     cond do
       Regex.match?(@mojang_uuid_regex, entity) -> {:uuid, entity}
       Regex.match?(@regular_uuid_regex, entity) -> {:uuid, String.replace(entity, "-", "")}
