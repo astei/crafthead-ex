@@ -32,6 +32,7 @@ defmodule Crafthead.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:mock, "~> 0.3.0", only: :test},
       {:rustler, "~> 0.30.0", runtime: false},
       {:decorator, "~> 1.4"},
       {:exconstructor, "~> 1.2"},

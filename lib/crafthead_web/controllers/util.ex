@@ -17,8 +17,6 @@ defmodule CraftheadWeb.Util do
     else
       case Mojang.uuid_to_profile(entity) do
         {:ok, profile} -> {:ok, profile}
-        # If we can't find the profile, we'd like to render a fallback.
-        {:error, :not_found} -> {:ok, %Minecraft{id: entity, name: entity, properties: []}}
         {:error, error} -> {:error, error}
       end
     end
@@ -32,7 +30,8 @@ defmodule CraftheadWeb.Util do
   end
 
   def get_potentially_fake_profile_from_entity({:uuid, entity} = raw_entity) do
-    case get_profile_for_entity(raw_entity) do
+    # The use of __MODULE__ is intentional: this is required for meck to mock the module correctly.
+    case __MODULE__.get_profile_for_entity(raw_entity) do
       {:ok, profile} -> {:ok, profile}
       # If we can't find the profile, we'd like to render a fallback.
       {:error, :not_found} -> {:ok, %Minecraft{id: entity, name: entity, properties: []}}
@@ -61,7 +60,8 @@ defmodule CraftheadWeb.Util do
   end
 
   def get_potentially_fake_profile_from_entity({:username, entity} = raw_entity) do
-    case get_profile_for_entity(raw_entity) do
+    # The use of __MODULE__ is intentional: this is required for meck to mock the module correctly.
+    case __MODULE__.get_profile_for_entity(raw_entity) do
       {:ok, profile} ->
         {:ok, profile}
 
